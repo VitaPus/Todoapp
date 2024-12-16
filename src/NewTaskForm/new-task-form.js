@@ -1,10 +1,10 @@
-import React, { Component } from "react";
-
-import "./new-task-form.css";
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import './new-task-form.css';
 
 export default class NewTaskForm extends Component {
   state = {
-    label: "",
+    label: '',
   };
   onTaskChange = (e) => {
     this.setState({
@@ -15,7 +15,7 @@ export default class NewTaskForm extends Component {
     e.preventDefault();
     this.props.addTask(this.state.label);
     this.setState({
-      label: "",
+      label: '',
     });
   };
 
@@ -37,3 +37,13 @@ export default class NewTaskForm extends Component {
     );
   }
 }
+
+NewTaskForm.defaultProps = {
+  onTaskChange: () => {},
+  onSubmit: () => {},
+};
+
+NewTaskForm.propTypes = {
+  onTaskChange: PropTypes.func,
+  onSubmit: PropTypes.func,
+};
