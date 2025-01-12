@@ -74,11 +74,11 @@
 .todo-list li label .created {
     font-size: 13px;
     color: gray;
+    position: absolute;
+    bottom: 2px;
+    right: 25px;
+    width: 150px;
 }
-
-
-
-
 
 .todo-list li .icon {
     position: absolute;
@@ -113,6 +113,26 @@
 .todo-list li .icon-edit:after {
     content: '✎';
 }
+
+.todo-list li .icon-pause,
+.todo-list li .icon-play {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.todo-list li .icon-play {
+    font-size: 15px;
+}
+
+.icon-pause:after {
+    content: '⏸';
+}
+
+.icon-play:after {
+    content: '▶';
+}
+
 
 .todo-list li .edit {
     display: none;
