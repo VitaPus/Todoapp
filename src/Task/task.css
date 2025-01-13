@@ -4,6 +4,11 @@
     border-top: 1px solid #e6e6e6;
 }
 
+.timer {
+    display: flex;
+    width: 115px;
+}
+
 .toggle {
     text-align: center;
     width: 40px;
