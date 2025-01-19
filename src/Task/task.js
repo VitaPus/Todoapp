@@ -1,64 +1,66 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { formatDistanceToNow } from 'date-fns'
 
-import Timer from '../Timer/timer'
+import Timer from '../Timer'
 import './task.css'
 
-export default class Task extends Component {
-  state = {
-    label: this.props.label,
+const Task = ({
+  done,
+  label: initialLabel,
+  edited,
+  created,
+  onDeleted,
+  onToggleDone,
+  onToggleEdited,
+  onUpdateTask,
+  id,
+}) => {
+  const [label, setLabel] = useState(initialLabel)
+
+  const onChange = (e) => {
+    setLabel(e.target.value)
   }
 
-  onChange = (e) => {
-    this.setState({
-      label: e.target.value,
-    })
-  }
-
-  onSubmit = (e) => {
+  const onSubmit = (e) => {
     e.preventDefault()
-
-    this.props.onUpdateTask(this.props.id, this.state.label)
-    this.props.onToggleEdited(this.props.id)
+    onUpdateTask(id, label)
+    onToggleEdited(id)
   }
 
-  render() {
-    const { done, onDeleted, onToggleDone, onToggleEdited, edited, created } = this.props
-    const timeAgo = formatDistanceToNow(created, {
-      includeSeconds: true,
-      addSuffix: true,
-    })
+  const timeAgo = formatDistanceToNow(created, {
+    includeSeconds: true,
+    addSuffix: true,
+  })
 
-    let classNames = 'description'
-    if (done) {
-      classNames += ' completed'
-    }
-
-    return edited ? (
-      <form onSubmit={this.onSubmit}>
-        <input
-          type="text"
-          value={this.state.label}
-          className="new-todo"
-          placeholder="What needs to be done?"
-          autoFocus
-          onChange={this.onChange}
-        />
-      </form>
-    ) : (
-      <div className="view">
-        <input className="toggle" type="checkbox" checked={done} onChange={onToggleDone} />
-        <label>
-          <span className={classNames}>{this.state.label}</span>
-          <span className="created">{timeAgo}</span>
-          <Timer />
-          <button className="icon icon-edit" onClick={onToggleEdited}></button>
-          <button className="icon icon-destroy" onClick={onDeleted}></button>
-        </label>
-      </div>
-    )
+  let classNames = 'description'
+  if (done) {
+    classNames += ' completed'
   }
+
+  return edited ? (
+    <form onSubmit={onSubmit}>
+      <input
+        type="text"
+        value={label}
+        className="new-todo"
+        placeholder="Что нужно сделать?"
+        autoFocus
+        onChange={onChange}
+      />
+    </form>
+  ) : (
+    <div className="view">
+      <input className="toggle" type="checkbox" checked={done} onChange={onToggleDone} />
+      <label>
+        <span className={classNames}>{label}</span>
+        <span className="created">{timeAgo}</span>
+        <Timer />
+        <button className="icon icon-edit" onClick={onToggleEdited}></button>
+        <button className="icon icon-destroy" onClick={onDeleted}></button>
+      </label>
+    </div>
+  )
 }
 
 Task.defaultProps = {
@@ -82,3 +84,5 @@ Task.propTypes = {
   onUpdateTask: PropTypes.func,
   created: PropTypes.number,
 }
+
+export default Task

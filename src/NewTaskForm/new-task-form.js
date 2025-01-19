@@ -1,49 +1,43 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import './new-task-form.css'
 
-export default class NewTaskForm extends Component {
-  state = {
-    label: '',
-  }
-  onTaskChange = (e) => {
-    this.setState({
-      label: e.target.value,
-    })
-  }
-  onSubmit = (e) => {
-    e.preventDefault()
-    this.props.addTask(this.state.label)
-    this.setState({
-      label: '',
-    })
+const NewTaskForm = ({ addTask }) => {
+  const [label, setLabel] = useState('')
+
+  const onTaskChange = (e) => {
+    setLabel(e.target.value)
   }
 
-  render() {
-    return (
-      <header className="header">
-        <h1>Todos</h1>
-        <form onSubmit={this.onSubmit}>
-          <input
-            type="text"
-            value={this.state.label}
-            className="new-todo"
-            placeholder="What needs to be done?"
-            autoFocus
-            onChange={this.onTaskChange}
-          />
-        </form>
-      </header>
-    )
+  const onSubmit = (e) => {
+    e.preventDefault()
+    addTask(label)
+    setLabel('')
   }
+
+  return (
+    <header className="header">
+      <h1>Todos</h1>
+      <form onSubmit={onSubmit}>
+        <input
+          type="text"
+          value={label}
+          className="new-todo"
+          placeholder="What needs to be done?"
+          autoFocus
+          onChange={onTaskChange}
+        />
+      </form>
+    </header>
+  )
 }
 
 NewTaskForm.defaultProps = {
-  onTaskChange: () => {},
-  onSubmit: () => {},
+  addTask: () => {},
 }
 
 NewTaskForm.propTypes = {
-  onTaskChange: PropTypes.func,
-  onSubmit: PropTypes.func,
+  addTask: PropTypes.func,
 }
+
+export default NewTaskForm

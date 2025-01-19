@@ -1,11 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import Task from '../Task/task'
-
+import Task from '../Task'
 import './task-list.css'
 
-const TaskList = ({ todos, onDeleted, onToggleDone, onToggleEdited }) => {
+const TaskList = ({ todos, onDeleted, onToggleDone, onToggleEdited}) => {
   const elements = todos.map((el) => {
     const { id, vision, ...itemProps } = el
     let className = 'description'

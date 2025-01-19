@@ -1,127 +1,110 @@
-import React, { Component } from 'react'
+import React, { useState, useCallback, useRef } from 'react';
+import TaskList from '../TaskList';
+import NewTaskForm from '../NewTaskForm';
+import Footer from '../Footer';
+import './app.css';
 
-import TaskList from '../TaskList/task-list'
-import NewTaskForm from '../NewTaskForm/new-task-form'
-import Footer from '../Footer/footer'
-import './app.css'
+const App = () => {
+  const [todoData, setTodoData] = useState([]);
+  const [filter, setFilter] = useState('all');
+  const maxId = useRef(100); // Используем useRef для хранения maxId
 
-export default class App extends Component {
-  maxId = 100
-
-  state = {
-    todoData: [],
-    filter: 'all',
-  }
-
-  createTask(label) {
+  const createTask = (label) => {
     return {
       label,
       done: false,
       edited: false,
       created: Date.now(),
-      id: this.maxId++,
-    }
-  }
+      id: maxId.current++,
+    };
+  };
 
-  deleteTask = (id) => {
-    this.setState(({ todoData }) => {
-      const newArr = todoData.filter((el) => el.id !== id)
-      return {
-        todoData: newArr,
-      }
-    })
-  }
+  const deleteTask = useCallback((id) => {
+    setTodoData((prevTodoData) => prevTodoData.filter((el) => el.id !== id));
+  }, []);
 
-  addTask = (text) => {
-    const newTask = this.createTask(text)
+  const addTask = useCallback((text) => {
+    const newTask = createTask(text);
+    setTodoData((prevTodoData) => [...prevTodoData, newTask]);
+  }, []);
 
-    this.setState(({ todoData }) => ({
-      todoData: [...todoData, newTask],
-    }))
-  }
+  const onToggleDone = useCallback((id) => {
+    setTodoData((prevTodoData) => {
+      const idx = prevTodoData.findIndex((el) => el.id === id);
+      const oldTask = prevTodoData[idx];
+      const newTask = { ...oldTask, done: !oldTask.done };
+      return [
+        ...prevTodoData.slice(0, idx),
+        newTask,
+        ...prevTodoData.slice(idx + 1),
+      ];
+    });
+  }, []);
 
-  onToggleDone = (id) => {
-    this.setState(({ todoData }) => {
-      const idx = todoData.findIndex((el) => el.id === id)
-      const oldTask = todoData[idx]
-      const newTask = { ...oldTask, done: !oldTask.done }
-      return {
-        todoData: [...todoData.slice(0, idx), newTask, ...todoData.slice(idx + 1)],
-      }
-    })
-  }
-  onToggleEdited = (id) => {
-    this.setState(({ todoData }) => {
-      const idx = todoData.findIndex((el) => el.id === id)
-      if (idx === -1) return
+  const onToggleEdited = useCallback((id) => {
+    setTodoData((prevTodoData) => {
+      const idx = prevTodoData.findIndex((el) => el.id === id);
+      if (idx === -1) return prevTodoData;
 
-      const oldTask = todoData[idx]
-      return {
-        todoData: [
-          ...todoData.slice(0, idx),
-          { ...oldTask, edited: !oldTask.edited }, // Меняем состояние edited
-          ...todoData.slice(idx + 1),
-        ],
-      }
-    })
-  }
+      const oldTask = prevTodoData[idx];
+      return [
+        ...prevTodoData.slice(0, idx),
+        { ...oldTask, edited: !oldTask.edited },
+        ...prevTodoData.slice(idx + 1),
+      ];
+    });
+  }, []);
 
-  onUpdateTask = (id, newLabel) => {
-    this.setState(({ todoData }) => {
-      const idx = todoData.findIndex((el) => el.id === id)
-      const oldTask = todoData[idx]
-      const newTask = { ...oldTask, label: newLabel }
-      return {
-        todoData: [...todoData.slice(0, idx), newTask, ...todoData.slice(idx + 1)],
-      }
-    })
-  }
+  // const onUpdateTask = useCallback((id, newLabel) => {
+  //   setTodoData((prevTodoData) => {
+  //     const idx = prevTodoData.findIndex((el) => el.id === id);
+  //     const oldTask = prevTodoData[idx];
+  //     const newTask = { ...oldTask, label: newLabel };
+  //     return [
+  //       ...prevTodoData.slice(0, idx),
+  //       newTask,
+  //       ...prevTodoData.slice(idx + 1),
+  //     ];
+  //   });
+  // }, []);
 
-  statusFilter = (label) => {
-    this.setState({ filter: label })
-  }
+  const statusFilter = useCallback((label) => {
+    setFilter(label);
+  }, []);
 
-  getVisibleTasks = () => {
-    const { todoData, filter } = this.state
-
+  const getVisibleTasks = () => {
     switch (filter) {
       case 'completed':
-        return todoData.filter((task) => task.done)
+        return todoData.filter((task) => task.done);
       case 'active':
-        return todoData.filter((task) => !task.done)
+        return todoData.filter((task) => !task.done);
       default: // "all"
-        return todoData
+        return todoData;
     }
-  }
+  };
 
-  clearCompleted = () => {
-    this.setState(({ todoData }) => {
-      // Фильтруем массив задач, отбрасывая выполненные
-      const newTodoData = todoData.filter((task) => !task.done)
-      return {
-        todoData: newTodoData,
-      }
-    })
-  }
+  const clearCompleted = useCallback(() => {
+    setTodoData((prevTodoData) => prevTodoData.filter((task) => !task.done));
+  }, []);
 
-  render() {
-    const visibleTasks = this.getVisibleTasks()
+  const visibleTasks = getVisibleTasks();
 
-    return (
-      <div className="todoapp">
-        <NewTaskForm addTask={this.addTask} />
-        <TaskList
-          todos={visibleTasks}
-          onDeleted={this.deleteTask}
-          onToggleDone={this.onToggleDone}
-          onToggleEdited={this.onToggleEdited}
-        />
-        <Footer
-          completedCount={this.state.todoData.filter((el) => el.done === false).length}
-          statusFilter={this.statusFilter}
-          clearCompleted={this.clearCompleted}
-        />
-      </div>
-    )
-  }
-}
+  return (
+    <div className="todoapp">
+      <NewTaskForm addTask={addTask} />
+      <TaskList
+        todos={visibleTasks}
+        onDeleted={deleteTask}
+        onToggleDone={onToggleDone}
+        onToggleEdited={onToggleEdited}
+      />
+      <Footer
+        completedCount={todoData.filter((el) => el.done === false).length}
+        statusFilter={statusFilter}
+        clearCompleted={clearCompleted}
+      />
+    </div>
+  );
+};
+
+export default App;
