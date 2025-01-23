@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { formatDistanceToNow } from 'date-fns'
 
-import Timer from '../Timer'
 import './task.css'
 
 const Task = ({
@@ -55,7 +54,6 @@ const Task = ({
       <label>
         <span className={classNames}>{label}</span>
         <span className="created">{timeAgo}</span>
-        <Timer />
         <button className="icon icon-edit" onClick={onToggleEdited}></button>
         <button className="icon icon-destroy" onClick={onDeleted}></button>
       </label>
