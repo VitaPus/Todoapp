@@ -4,35 +4,49 @@ export default class Timer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      seconds: 0,
+      seconds: this.timeInSeconds(props.initialTime),
       isRunning: false,
     };
-    this.timerId = null; // Уникальный идентификатор таймера
+    this.timerId = null;
   }
 
-  componentDidMount() {
-    // Запуск таймера при монтировании, если он запущен
-    if (this.state.isRunning) {
-      this.startTimer();
+  componentDidUpdate(prevProps) {
+    // Если новое время отличается от предыдущего, нужно сбросить таймер
+    if (prevProps.initialTime !== this.props.initialTime) {
+      this.setState({ seconds: this.timeInSeconds(this.props.initialTime) });
     }
   }
 
   componentWillUnmount() {
-    // Остановить таймер при размонтировании компонента
     this.stopTimer();
   }
 
+  timeInSeconds = (time) => {
+    if (!time) {
+      console.error("Received undefined or empty time");
+      return 0;  // Возвращаем 0 если time не определено
+    }
+    const [minutes, seconds] = time.split(':').map(Number);
+    return (minutes || 0) * 60 + (seconds || 0);
+  };
+
   startTimer = () => {
+    this.setState({ isRunning: true });
     this.timerId = setInterval(() => {
-      this.setState((prevState) => ({
-        seconds: prevState.seconds + 1,
-      }));
-    }, 1000); // обновление каждую секунду
+      this.setState((prevState) => {
+        if (prevState.seconds <= 0) {
+          clearInterval(this.timerId);
+          return { isRunning: false }; // Остановить таймер по окончании
+        }
+        return { seconds: prevState.seconds - 1 };
+      });
+    }, 1000);
   }
 
   stopTimer = () => {
     clearInterval(this.timerId);
     this.timerId = null;
+    this.setState({ isRunning: false });
   }
 
   handlePlayPause = () => {
@@ -62,13 +76,9 @@ export default class Timer extends Component {
           onClick={this.handlePlayPause}
           aria-label={isRunning ? 'Pause' : 'Play'}
         >
-          {isRunning ? (
-            <span></span> // Кнопка для паузы
-          ) : (
-            <span></span> // Кнопка для воспроизведения
-          )}
+          {isRunning ? '' : ''}
         </button>
-        <div>{this.formatTime(seconds)}</div> {/* Форматируем время в минуту и секунды */}
+        <div>{this.formatTime(seconds)}</div>
       </div>
     );
   }

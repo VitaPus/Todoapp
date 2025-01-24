@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { formatDistanceToNow } from 'date-fns'
 
-import Timer from '../Timer/timer'
 import './task.css'
 
 export default class Task extends Component {
@@ -52,7 +51,6 @@ export default class Task extends Component {
         <label>
           <span className={classNames}>{this.state.label}</span>
           <span className="created">{timeAgo}</span>
-          <Timer />
           <button className="icon icon-edit" onClick={onToggleEdited}></button>
           <button className="icon icon-destroy" onClick={onDeleted}></button>
         </label>

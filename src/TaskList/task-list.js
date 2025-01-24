@@ -1,15 +1,14 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-
-import Task from '../Task/task'
-
-import './task-list.css'
+import React from 'react';
+import PropTypes from 'prop-types';
+import Task from '../Task/task';
+import Timer from '../Timer/timer'; // Импортируйте ваш компонент Timer
+import './task-list.css';
 
 const TaskList = ({ todos, onDeleted, onToggleDone, onToggleEdited }) => {
   const elements = todos.map((el) => {
-    const { id, vision, ...itemProps } = el
-    let className = 'description'
-    if (vision === false) className += ' none'
+    const { id, vision, time, ...itemProps } = el; // Получите время из элемента
+    let className = 'description';
+    if (vision === false) className += ' none';
 
     return (
       <li key={id} className={className}>
@@ -19,24 +18,26 @@ const TaskList = ({ todos, onDeleted, onToggleDone, onToggleEdited }) => {
           onToggleDone={() => onToggleDone(id)}
           onToggleEdited={() => onToggleEdited(id)}
         />
+        <Timer initialTime={time} /> {/* Добавьте таймер */}
       </li>
-    )
-  })
-  return <ul className="todo-list">{elements}</ul>
-}
+    );
+  });
+
+  return <ul className="todo-list">{elements}</ul>;
+};
 
 TaskList.defaultProps = {
   todos: [],
   onToggleDone: () => {},
   onToggleEdited: () => {},
   onDeleted: () => {},
-}
+};
 
 TaskList.propTypes = {
   todos: PropTypes.array,
   onToggleDone: PropTypes.func,
   onToggleEdited: PropTypes.func,
   onDeleted: PropTypes.func,
-}
+};
 
-export default TaskList
+export default TaskList;

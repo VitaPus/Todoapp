@@ -1,23 +1,34 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import './new-task-form.css'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import './new-task-form.css';
 
 export default class NewTaskForm extends Component {
   state = {
     label: '',
-  }
+    time: '00:00', // Исправлено здесь
+  };
+
   onTaskChange = (e) => {
     this.setState({
       label: e.target.value,
-    })
-  }
+    });
+  };
+
+  onTimeChange = (e) => { // Добавлен метод для изменения времени
+    this.setState({
+      time: e.target.value,
+    });
+  };
+
   onSubmit = (e) => {
-    e.preventDefault()
-    this.props.addTask(this.state.label)
+    e.preventDefault();
+    const { label, time } = this.state; // Исправлено здесь
+    this.props.addTask(label, time);
     this.setState({
       label: '',
-    })
-  }
+      time: '00:00',
+    });
+  };
 
   render() {
     return (
@@ -32,18 +43,20 @@ export default class NewTaskForm extends Component {
             autoFocus
             onChange={this.onTaskChange}
           />
+           <input
+            type="time"
+            min="00:01"
+            value={this.state.time}
+            className="addTime"
+            placeholder="hh:mm"
+            onChange={this.onTimeChange}/>
+            <button className="time_button" type="submit"/>
         </form>
       </header>
-    )
+    );
   }
 }
 
-NewTaskForm.defaultProps = {
-  onTaskChange: () => {},
-  onSubmit: () => {},
-}
-
 NewTaskForm.propTypes = {
-  onTaskChange: PropTypes.func,
-  onSubmit: PropTypes.func,
-}
+  addTask: PropTypes.func.isRequired, // Добавлен пропс addTask
+};

@@ -13,13 +13,15 @@ export default class App extends Component {
     filter: 'all',
   }
 
-  createTask(label) {
+  createTask(label, time) {
     return {
       label,
       done: false,
       edited: false,
       created: Date.now(),
+      time,
       id: this.maxId++,
+      isRunning: false,
     }
   }
 
@@ -32,13 +34,13 @@ export default class App extends Component {
     })
   }
 
-  addTask = (text) => {
-    const newTask = this.createTask(text)
-
+  // Предполагается, что ваш NewTaskForm предоставляет time вместе с label
+  addTask = (label, time) => {
+    const newTask = this.createTask(label, time);
     this.setState(({ todoData }) => ({
-      todoData: [...todoData, newTask],
-    }))
-  }
+        todoData: [...todoData, newTask],
+    }));
+};
 
   onToggleDone = (id) => {
     this.setState(({ todoData }) => {
