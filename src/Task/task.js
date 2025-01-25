@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { formatDistanceToNow } from 'date-fns'
 
 import './task.css'
+import Timer from '../Timer/timer'
 
 export default class Task extends Component {
   state = {
@@ -23,7 +24,7 @@ export default class Task extends Component {
   }
 
   render() {
-    const { done, onDeleted, onToggleDone, onToggleEdited, edited, created } = this.props
+    const { done, onDeleted, onToggleDone, onToggleEdited, edited, created, time } = this.props
     const timeAgo = formatDistanceToNow(created, {
       includeSeconds: true,
       addSuffix: true,
@@ -51,6 +52,7 @@ export default class Task extends Component {
         <label>
           <span className={classNames}>{this.state.label}</span>
           <span className="created">{timeAgo}</span>
+           <Timer initialTime={time} />
           <button className="icon icon-edit" onClick={onToggleEdited}></button>
           <button className="icon icon-destroy" onClick={onDeleted}></button>
         </label>

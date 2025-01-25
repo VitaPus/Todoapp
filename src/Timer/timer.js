@@ -10,10 +10,16 @@ export default class Timer extends Component {
     this.timerId = null;
   }
 
+  componentDidMount() {
+    // Запуск таймера сразу при монтировании компонента
+    this.startTimer();
+  }
+
   componentDidUpdate(prevProps) {
     // Если новое время отличается от предыдущего, нужно сбросить таймер
     if (prevProps.initialTime !== this.props.initialTime) {
       this.setState({ seconds: this.timeInSeconds(this.props.initialTime) });
+      this.startTimer(); // Запускаем таймер, когда время меняется
     }
   }
 
@@ -22,15 +28,13 @@ export default class Timer extends Component {
   }
 
   timeInSeconds = (time) => {
-    if (!time) {
-      console.error("Received undefined or empty time");
-      return 0;  // Возвращаем 0 если time не определено
-    }
     const [minutes, seconds] = time.split(':').map(Number);
     return (minutes || 0) * 60 + (seconds || 0);
   };
 
   startTimer = () => {
+    if (this.state.isRunning) return;
+
     this.setState({ isRunning: true });
     this.timerId = setInterval(() => {
       this.setState((prevState) => {
@@ -41,13 +45,13 @@ export default class Timer extends Component {
         return { seconds: prevState.seconds - 1 };
       });
     }, 1000);
-  }
+  };
 
   stopTimer = () => {
     clearInterval(this.timerId);
     this.timerId = null;
     this.setState({ isRunning: false });
-  }
+  };
 
   handlePlayPause = () => {
     this.setState((prevState) => {
@@ -58,13 +62,13 @@ export default class Timer extends Component {
       }
       return { isRunning: !prevState.isRunning };
     });
-  }
+  };
 
   formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${minutes < 10 ? '0' : ''}${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-  }
+  };
 
   render() {
     const { isRunning, seconds } = this.state;
