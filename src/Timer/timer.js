@@ -5,21 +5,30 @@ export default class Timer extends Component {
     super(props);
     this.state = {
       seconds: this.timeInSeconds(props.initialTime),
-      isRunning: false,
+      isRunning: this.props.isRunning, // Локальное управление isRunning
     };
     this.timerId = null;
   }
 
   componentDidMount() {
-    // Запуск таймера сразу при монтировании компонента
-    this.startTimer();
+    if (this.state.isRunning) {
+      this.startTimer();
+    }
   }
 
   componentDidUpdate(prevProps) {
-    // Если новое время отличается от предыдущего, нужно сбросить таймер
+    if (prevProps.isRunning !== this.props.isRunning) {
+      this.setState({ isRunning: this.props.isRunning }, () => {
+        if (this.state.isRunning) {
+          this.startTimer();
+        } else {
+          this.stopTimer();
+        }
+      });
+    }
+
     if (prevProps.initialTime !== this.props.initialTime) {
       this.setState({ seconds: this.timeInSeconds(this.props.initialTime) });
-      this.startTimer(); // Запускаем таймер, когда время меняется
     }
   }
 
@@ -32,42 +41,45 @@ export default class Timer extends Component {
     return (minutes || 0) * 60 + (seconds || 0);
   };
 
-  startTimer = () => {
-    if (this.state.isRunning) return;
+  formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes < 10 ? '0' : ''}${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
-    this.setState({ isRunning: true });
+  startTimer = () => {
+    if (this.timerId) return;
+
     this.timerId = setInterval(() => {
-      this.setState((prevState) => {
-        if (prevState.seconds <= 0) {
-          clearInterval(this.timerId);
-          return { isRunning: false }; // Остановить таймер по окончании
+      this.setState(
+        (prevState) => ({ seconds: prevState.seconds - 1 }),
+        () => {
+          if (this.state.seconds <= 0) {
+            this.stopTimer();
+          } else {
+            this.props.onTimeUpdate(this.formatTime(this.state.seconds));
+          }
         }
-        return { seconds: prevState.seconds - 1 };
-      });
+      );
     }, 1000);
   };
 
   stopTimer = () => {
     clearInterval(this.timerId);
     this.timerId = null;
-    this.setState({ isRunning: false });
   };
 
   handlePlayPause = () => {
-    this.setState((prevState) => {
-      if (prevState.isRunning) {
-        this.stopTimer();
-      } else {
-        this.startTimer();
+    this.setState(
+      (prevState) => ({ isRunning: !prevState.isRunning }),
+      () => {
+        if (this.state.isRunning) {
+          this.startTimer();
+        } else {
+          this.stopTimer();
+        }
       }
-      return { isRunning: !prevState.isRunning };
-    });
-  };
-
-  formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes < 10 ? '0' : ''}${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    );
   };
 
   render() {

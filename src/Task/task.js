@@ -1,38 +1,42 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { formatDistanceToNow } from 'date-fns'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { formatDistanceToNow } from 'date-fns';
 
-import './task.css'
-import Timer from '../Timer/timer'
+import './task.css';
+import Timer from '../Timer/timer';
 
 export default class Task extends Component {
   state = {
     label: this.props.label,
-  }
+    currentTime: this.props.time, // Храним текущее время таймера
+  };
 
   onChange = (e) => {
     this.setState({
       label: e.target.value,
-    })
-  }
+    });
+  };
 
   onSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
+    this.props.onUpdateTask(this.props.id, this.state.label);
+    this.props.onToggleEdited(this.props.id);
+  };
 
-    this.props.onUpdateTask(this.props.id, this.state.label)
-    this.props.onToggleEdited(this.props.id)
-  }
+  updateTime = (newTime) => {
+    this.setState({ currentTime: newTime });
+  };
 
   render() {
-    const { done, onDeleted, onToggleDone, onToggleEdited, edited, created, time } = this.props
+    const { done, onDeleted, onToggleDone, onToggleEdited, edited, created } = this.props;
     const timeAgo = formatDistanceToNow(created, {
       includeSeconds: true,
       addSuffix: true,
-    })
+    });
 
-    let classNames = 'description'
+    let classNames = 'description';
     if (done) {
-      classNames += ' completed'
+      classNames += ' completed';
     }
 
     return edited ? (
@@ -52,12 +56,16 @@ export default class Task extends Component {
         <label>
           <span className={classNames}>{this.state.label}</span>
           <span className="created">{timeAgo}</span>
-           <Timer initialTime={time} />
+          <Timer
+            initialTime={this.state.currentTime}
+            isRunning={!done && !edited}
+            onTimeUpdate={this.updateTime} // Передаем callback для обновления времени
+          />
           <button className="icon icon-edit" onClick={onToggleEdited}></button>
           <button className="icon icon-destroy" onClick={onDeleted}></button>
         </label>
       </div>
-    )
+    );
   }
 }
 
@@ -70,7 +78,7 @@ Task.defaultProps = {
   onDeleted: () => {},
   onUpdateTask: () => {},
   created: Date.now(),
-}
+};
 
 Task.propTypes = {
   done: PropTypes.bool,
@@ -81,4 +89,4 @@ Task.propTypes = {
   onDeleted: PropTypes.func,
   onUpdateTask: PropTypes.func,
   created: PropTypes.number,
-}
+};

@@ -23,11 +23,15 @@ export default class NewTaskForm extends Component {
   onSubmit = (e) => {
     e.preventDefault();
     const { label, time } = this.state; // Исправлено здесь
+    if (!label.trim()) {
+      return; // Если пустое, не отправляем форму
+    }
     this.props.addTask(label, time);
     this.setState({
       label: '',
       time: '00:00',
     });
+    
   };
 
   render() {
